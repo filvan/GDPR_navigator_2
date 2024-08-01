@@ -1,0 +1,96 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+*NOGIT*
+.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.metadata/
+
+# Mac
+.DS_Store
+ 
+# Maven
+log/
+target/
+
+# Misc
+*.zip
+*.log
+$py.class
+*py.class
+__pycache__
+*.pyc
+
+# Cache
+ehCache/
+src/main/resources/.lock
+
+logs
+chaseGraph.json
+tmp/
+*.swp
+nohup.out
+
+/bin/
+bin/
+*.class
+
+# Benchmark data
+benchmark_data/doctors_data/10k/
+benchmark_data/doctors_data/100k/
+benchmark_data/doctors_data/500k/
+benchmark_data/doctors_data/1m/
+benchmark_data/doctors-fd_data/10k/
+benchmark_data/doctors-fd_data/100k/
+benchmark_data/doctors-fd_data/500k/
+benchmark_data/doctors-fd_data/1m/
+benchmark_data/LUBM_data/001/
+benchmark_data/LUBM_data/010/
+benchmark_data/LUBM_data/100/
+benchmark_data/LUBM_data/01k/
+benchmark_data/Ontology-256_data/data/
+benchmark_data/STB-128_data/data/
+benchmark_data/company_control/
+benchmark_data/synthetic/
+benchmark_data/bugfixing
+benchmark_data/*
+src/test/resources/programs/approximateReasoning/
+
+# Repository and disk
+disk/*
+repository/*
+sqliteDb.db
+testdb.db
