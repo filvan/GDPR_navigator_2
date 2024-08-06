@@ -153,7 +153,14 @@ def main():
     # print(article2references)
     graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=1)
     # with np.printoptions(threshold=np.inf):
-    # print(graph_matrix)
+    # print(graph_matrix) prints out the matrix for the graph
+
+
+    arrayMatrix = np.array(graph_matrix)
+    G = nx.DiGraph(arrayMatrix>0)
+    nx.draw_kamada_kawai(G, with_labels=True)
+    plt.show()
+
     num_cycles = detect_cycle(graph_matrix, index2article_with_references)
     if num_cycles > 0:
         print(f"{num_cycles} cycle(s) detected.")
