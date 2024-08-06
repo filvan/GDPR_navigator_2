@@ -2,6 +2,7 @@ import openpyxl
 import pandas as pd
 import numpy as np
 import re
+import networkx as nx
 
 
 class LegalText:
