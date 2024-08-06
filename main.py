@@ -155,9 +155,8 @@ def main():
     # with np.printoptions(threshold=np.inf):
     # print(graph_matrix) prints out the matrix for the graph
 
-
     arrayMatrix = np.array(graph_matrix)
-    G = nx.DiGraph(arrayMatrix>0)
+    G = nx.MultiDiGraph(arrayMatrix>0)
     nx.draw_kamada_kawai(G, with_labels=True)
     plt.show()
 
