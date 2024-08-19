@@ -153,12 +153,25 @@ def main():
     # print(article2references)
     graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=1)
     # with np.printoptions(threshold=np.inf):
-    print(graph_matrix)
+    #print(graph_matrix)
 
     
+    #turn the graph matrix into aray form
     arrayMatrix = np.array(graph_matrix)
+
+    #this will loop through the matrix and print it
+    for x in arrayMatrix: 
+        print(x)
+
+    #this will loop through the matrix and write it into the txt file
+    matrix = np.matrix(arrayMatrix)
+    with open('matrix.txt', 'wb') as f:
+        for line in matrix:
+            np.savetxt(f, line, fmt='%.0f')
+
+    #will create and print the graph
     G = nx.MultiDiGraph(arrayMatrix)
-    nx.draw_kamada_kawai(G, with_labels=True)
+    nx.draw_circular(G, with_labels=True)
     plt.show()
     
     
