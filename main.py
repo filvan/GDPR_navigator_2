@@ -109,7 +109,10 @@ def DFS(current_node, visited_nodes, recursion_stack, graph_matrix, index2articl
                 if DFS(adjacent_node, visited_nodes, recursion_stack, graph_matrix, index2article_with_references):
                     return True
             elif recursion_stack[adjacent_node]:
-                print("\nCycle detected between Art.", current_node_name, "and Art.", adjacent_node_name, "\n")
+                if graph_matrix[adjacent_node][current_node] == 1:
+                    print("\nProper/Direct cycle detected between Art.", current_node_name, "and Art.", adjacent_node_name, "\n")
+                else:
+                    print("\nCycle detected")
                 return True
 
     recursion_stack[current_node] = False
