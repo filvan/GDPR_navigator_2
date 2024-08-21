@@ -66,4 +66,4 @@ The next step was setting up the adjacency matrix.
 
 ## Credits
 
-Many thanks to Esteban Garcia Taquez, who contributed to this repository by working on GDPR_map and by studying possible ways to print out the graph in main.py.
+Many thanks to [Esteban Garcia Taquez](https://github.com/Esgartaq04), who contributed to this repository by working on GDPR_map and by studying possible ways to print out the graph in main.py.
