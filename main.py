@@ -209,8 +209,8 @@ def main():
     arrayMatrix = np.array(graph_matrix)
 
     # this will loop through the matrix and print it
-    for x in arrayMatrix:
-        print(x)
+    #for x in arrayMatrix:
+    #    print(x)
 
     # this will loop through the matrix and write it into the txt file
     matrix = np.matrix(arrayMatrix)
@@ -219,7 +219,7 @@ def main():
             np.savetxt(f, line, fmt='%.0f')
 
     # will create and print the graph
-    G = nx.MultiDiGraph(arrayMatrix)
+    G = nx.DiGraph(arrayMatrix)
     nx.draw_circular(G, with_labels=True)
     plt.show()
 
