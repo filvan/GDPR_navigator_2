@@ -5,6 +5,7 @@ import re
 import networkx as nx
 import matplotlib.pyplot as plt
 
+
 class LegalText:
     def __init__(self, name, translated=False, references=None):
         self.name = name
@@ -20,7 +21,10 @@ class LegalText:
         return self.__str__()
 
 
-def setup_graph_matrix(index2article_with_references: dict, article2index: dict, option=0) -> np.ndarray:
+def setup_graph_matrix(index2article_with_references: dict, article2index: dict, option: int = 0) -> np.ndarray:
+    if not 0 <= option <= 3:
+        print("Invalid value of the option. Please choose an option value between 0, 1, 2 and 3")
+        exit(1)
     graph_matrix = np.zeros((len(index2article_with_references), len(index2article_with_references)), dtype=int)
     for i in range(len(index2article_with_references)):
         # graph_matrix[0][i] = i
@@ -34,27 +38,42 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                 if match1:
                     match1 = match1.string
                     match1 = re.sub(r"[a-zA-Z]+\.\s", "", match1)
-                    reference_index = article2index[match1]
-                    graph_matrix[i][reference_index] = 1
+                    if option == 2 or option == 3:
+                        k = article2index[match1]
+                        name = index2article_with_references[k].name
+                        while match1 in name:
+                            graph_matrix[i][k] = 1
+                            k += 1
+                            if k == len(index2article_with_references):
+                                break
+                            name = index2article_with_references[k].name
+                    else:
+                        reference_index = article2index[match1]
+                        graph_matrix[i][reference_index] = 1
                 else:
                     match2 = re.search(pattern=regex2, string=reference)
                     if match2:
                         match2 = match2.string
                         match2 = re.sub(r"[^\d+\-\d+]", "", match2)
                         match2 = match2.split("-")
-                        if option == 1:
+                        if option == 1 or option == 3:
                             increment = 0
                             interval_start = article2index[match2[0]]
                             interval_end = article2index[match2[1]]
-                            for k in range(interval_end, len(index2article_with_references)):
-                                if match2[1] in index2article_with_references[k].name:
-                                    increment += 1
+                            k = interval_start
+                            name = index2article_with_references[k].name
+                            while match2[1] in name:
+                                increment += 1
+                                k += 1
+                                if k == len(index2article_with_references):
+                                    break
+                                name = index2article_with_references[k].name
                         else:
                             increment = 1
                             interval_start = int(match2[0])
                             interval_end = int(match2[1])
                         for j in range(interval_start, interval_end + increment):
-                            if option == 1:
+                            if option == 1 or option == 3:
                                 reference_index = j
                             else:
                                 reference_index = article2index[str(j)]
@@ -94,10 +113,19 @@ def setup_dictionaries(df, index2references, index2article_with_references, arti
         article2references[name] = index2references[i]
 
 
-def DFS(current_node, visited_nodes, recursion_stack, graph_matrix, index2article_with_references):
+num_cycles = 0
+
+
+def DFS(current_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack, recursion_stack2,
+        recursion_stack3: list, graph_matrix, index2article_with_references):
+    global num_cycles
     current_node_name = index2article_with_references[current_node]
     visited_nodes[current_node] = True
+    visited_nodes2[current_node] = current_node_name
+    visited_nodes3.append(current_node_name)
     recursion_stack[current_node] = True
+    recursion_stack2[current_node] = current_node_name
+    recursion_stack3.append(current_node_name)
     # print("Visiting Art.", current_node_name)
 
     for adjacent_node in range(len(index2article_with_references)):
@@ -106,35 +134,44 @@ def DFS(current_node, visited_nodes, recursion_stack, graph_matrix, index2articl
             # print("Art.", current_node_name, "-> Art.", adjacent_node_name)
             if not visited_nodes[adjacent_node]:
                 # print("Art.", current_node_name, "-> Art.", adjacent_node_name)
-                if DFS(adjacent_node, visited_nodes, recursion_stack, graph_matrix, index2article_with_references):
-                    return True
+                DFS(adjacent_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack, recursion_stack2,
+                    recursion_stack3, graph_matrix,
+                    index2article_with_references)
             elif recursion_stack[adjacent_node]:
                 if graph_matrix[adjacent_node][current_node] == 1:
-                    print("\nProper/Direct cycle detected between Art.", current_node_name, "and Art.", adjacent_node_name, "\n")
+                    print("Cycle detected:", current_node_name, "<->", adjacent_node_name)
                 else:
-                    print("\nCycle detected")
-                return True
+                    print("Cycle detected: ", end="")
+                    for node in range(len(recursion_stack3)):
+                        print(recursion_stack3[node], "-> ", end="")
+                    print(recursion_stack2[adjacent_node])
+                num_cycles += 1
 
     recursion_stack[current_node] = False
+    recursion_stack2[current_node] = ''
+    recursion_stack3.remove(current_node_name)
     # print("Visit on Art.", current_node_name, "completed.")
-    return False
 
 
 def detect_cycle(graph_matrix, index2article_with_references):
     num_nodes = len(index2article_with_references)
+    global num_cycles
     num_cycles = 0
 
     visited_nodes = [False] * num_nodes
+    visited_nodes2 = [''] * num_nodes
+    visited_nodes3 = []
     recursion_stack = [False] * num_nodes
+    recursion_stack2 = [''] * num_nodes
+    recursion_stack3 = []
 
     for current_node in range(num_nodes):
-        current_node_name = index2article_with_references[current_node]
+        # current_node_name = index2article_with_references[current_node]
         if not visited_nodes[current_node]:
             # print("Running DFS on Art.", current_node_name)
-            if DFS(current_node, visited_nodes, recursion_stack, graph_matrix, index2article_with_references):
-                num_cycles += 1
-
-    return num_cycles
+            DFS(current_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack, recursion_stack2,
+                recursion_stack3, graph_matrix,
+                index2article_with_references)
 
 
 def main():
@@ -154,29 +191,33 @@ def main():
     # print(index2article_with_references)
     # print(article2index)
     # print(article2references)
-    graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=1)
+
+    # choose an option between 0, 1, 2, 3 to set up the graph adjacency matrix
+    graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=0)
+
     # with np.printoptions(threshold=np.inf):
     # print(graph_matrix)
 
-    #turn the graph matrix into aray form
+    # Author: Esteban Garcia Taquez
+    # turn the graph matrix into array form
     arrayMatrix = np.array(graph_matrix)
 
-    #this will loop through the matrix and print it
-    for x in arrayMatrix: 
+    # this will loop through the matrix and print it
+    for x in arrayMatrix:
         print(x)
 
-    #this will loop through the matrix and write it into the txt file
+    # this will loop through the matrix and write it into the txt file
     matrix = np.matrix(arrayMatrix)
     with open('matrix.txt', 'wb') as f:
         for line in matrix:
             np.savetxt(f, line, fmt='%.0f')
 
-    #will create and print the graph
+    # will create and print the graph
     G = nx.MultiDiGraph(arrayMatrix)
     nx.draw_circular(G, with_labels=True)
     plt.show()
-    
-    num_cycles = detect_cycle(graph_matrix, index2article_with_references)
+
+    detect_cycle(graph_matrix, index2article_with_references)
     if num_cycles > 0:
         print(f"{num_cycles} cycle(s) detected.")
     else:
