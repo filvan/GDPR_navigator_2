@@ -198,6 +198,12 @@ def main():
     # with np.printoptions(threshold=np.inf):
     # print(graph_matrix)
 
+    detect_cycle(graph_matrix, index2article_with_references)
+    if num_cycles > 0:
+        print(f"{num_cycles} cycle(s) detected.")
+    else:
+        print("No cycle detected.")
+
     # Author: Esteban Garcia Taquez
     # turn the graph matrix into array form
     arrayMatrix = np.array(graph_matrix)
@@ -216,12 +222,6 @@ def main():
     G = nx.MultiDiGraph(arrayMatrix)
     nx.draw_circular(G, with_labels=True)
     plt.show()
-
-    detect_cycle(graph_matrix, index2article_with_references)
-    if num_cycles > 0:
-        print(f"{num_cycles} cycle(s) detected.")
-    else:
-        print("No cycle detected.")
 
 
 if __name__ == '__main__':
