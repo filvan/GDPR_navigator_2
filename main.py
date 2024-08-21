@@ -155,14 +155,14 @@ def main():
     # with np.printoptions(threshold=np.inf):
     # print(graph_matrix)
 
-    #turn the graph matrix into aray form
+    # turn the graph matrix into aray form
     arrayMatrix = np.array(graph_matrix)
 
-    #this will loop through the matrix and print it
+    # this will loop through the matrix and print it
     for x in arrayMatrix: 
         print(x)
 
-    #this will loop through the matrix and write it into the txt file
+    # this will loop through the matrix and write it into the txt file
     matrix = np.matrix(arrayMatrix)
     with open('matrix.txt', 'wb') as f:
         for line in matrix:
