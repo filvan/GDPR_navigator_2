@@ -185,10 +185,10 @@ def main():
                               'Link': str})
     df['Link'] = setup_links()
     df.fillna('', inplace=True)
-    print(df)
+    # print(df)
     setup_dictionaries(df, index2references, index2article_with_references, article2index, article2references)
     # print(index2references)
-    # print(index2article_with_references)
+    # print(index2article_with_references)# maps the number node to correct name
     # print(article2index)
     # print(article2references)
 
@@ -220,6 +220,10 @@ def main():
 
     # will create and print the graph
     G = nx.DiGraph(arrayMatrix)
+
+    # modify the names of the nodes
+    G = nx.relabel_nodes(G, index2article_with_references)
+
     nx.draw_circular(G, with_labels=True)
     plt.show()
 
