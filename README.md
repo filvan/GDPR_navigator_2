@@ -64,6 +64,8 @@ The next step was setting up the adjacency matrix.
 
 
 
+Inorder to display the adjacency matrix as a directed graph, I had to import netowrkx to create the nodes and edges and also import matplotlib to be able to display the graph. Inorder to owrk with these packages and be able to view the graph you can follow the download intructions from networkx for your machine here: https://networkx.org/documentation/stable/install.html . You can also follow the download instructions for matpoltlib for youer machine here: https://matplotlib.org/stable/install/index.html . Once downloaded and running the code, the directed graph will appear in a new window. The home button on the new window is to reset the view, the arrows are to toggle diffrent views you have activated before, the axis button to to move around the graph, the magnifing glass is a zoom in button in which you create a square around the are you want to zoom in on, and finall the save figure to save the figure to your local machine.
+
 ## Credits
 
 Many thanks to [Esteban Garcia Taquez](https://github.com/Esgartaq04), who contributed to this repository by working on GDPR_map and by studying possible ways to print out the graph in main.py.
