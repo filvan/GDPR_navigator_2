@@ -228,7 +228,7 @@ def main():
     G = nx.relabel_nodes(G, index2article_with_references)
 
     # draw and print the graph
-    nx.draw_circular(G, with_labels=True)
+    nx.draw(G, pos=nx.circular_layout(G),with_labels=True,node_size=1200)
     plt.show()
 
 
