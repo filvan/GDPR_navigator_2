@@ -196,7 +196,7 @@ def main():
     graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=0)
 
     # with np.printoptions(threshold=np.inf):
-    # print(graph_matrix)
+    print(graph_matrix)
 
     detect_cycle(graph_matrix, index2article_with_references)
     if num_cycles > 0:
@@ -205,25 +205,29 @@ def main():
         print("No cycle detected.")
 
     # Author: Esteban Garcia Taquez
-    # turn the graph matrix into array form
+
+    # turn the graph adjacency matrix into 2d array
     arrayMatrix = np.array(graph_matrix)
 
     # this will loop through the matrix and print it
-    #for x in arrayMatrix:
-    #    print(x)
+    for x in graph_matrix:
+        print(x)
 
-    # this will loop through the matrix and write it into the txt file
+    # turn the 2d array into a matrix
     matrix = np.matrix(arrayMatrix)
+
+    #loop through matrix and write into a txt file
     with open('matrix.txt', 'wb') as f:
         for line in matrix:
             np.savetxt(f, line, fmt='%.0f')
 
-    # will create and print the graph
+    # create the graph from the matrix as an array
     G = nx.DiGraph(arrayMatrix)
 
     # modify the names of the nodes
     G = nx.relabel_nodes(G, index2article_with_references)
 
+    # draw and print the graph
     nx.draw_circular(G, with_labels=True)
     plt.show()
 
