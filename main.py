@@ -193,10 +193,10 @@ def main():
     # print(article2references)
 
     # choose an option between 0, 1, 2, 3 to set up the graph adjacency matrix
-    graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=0)
+    graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=3)
 
     # with np.printoptions(threshold=np.inf):
-    print(graph_matrix)
+    # print(graph_matrix)
 
     detect_cycle(graph_matrix, index2article_with_references)
     if num_cycles > 0:
@@ -210,13 +210,13 @@ def main():
     arrayMatrix = np.array(graph_matrix)
 
     # this will loop through the matrix and print it
-    for x in graph_matrix:
-        print(x)
+    # for x in graph_matrix:
+    #     print(x)
 
     # turn the 2d array into a matrix
     matrix = np.matrix(arrayMatrix)
 
-    #loop through matrix and write into a txt file
+    # loop through matrix and write into a txt file
     with open('matrix.txt', 'wb') as f:
         for line in matrix:
             np.savetxt(f, line, fmt='%.0f')
@@ -228,8 +228,8 @@ def main():
     G = nx.relabel_nodes(G, index2article_with_references)
 
     # draw and print the graph
-    nx.draw(G, pos=nx.circular_layout(G),with_labels=True,node_size=1200)
-    plt.show()
+    nx.draw(G, pos=nx.circular_layout(G), with_labels=True, node_size=1200)
+    # plt.show()
 
 
 if __name__ == '__main__':

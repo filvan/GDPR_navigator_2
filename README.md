@@ -7,13 +7,14 @@ This repository was created to represent most of the GDPR articles (90 out of 99
 ## Repository structure
 
 - **GDPR_map**, an Excel file listing the GDPR articles, together with some useful info about them
+- **Screenshot.png**, a screenshot of a portion of GDPR_map.xlsx
 - **main.py**, a Python file containing the source code
 - **matrix.txt**, a txt file resulting from the set up of the adjacency matrix that represents the graph 
 - **README.md**, this Markdown file
 
 ## GDPR_map
 
-This file "mas" the GDPR corpus on a single sheet (_Cartel1_) with 794 rows and 6 columns.
+This file "map" the GDPR corpus on a single sheet (_Cartel1_) with 794 rows and 6 columns.
 
 ![A screenshot of a portion of GDPR_map.xlsx](Screenshot.png "GDPR_map")
 
@@ -43,6 +44,7 @@ If you click on a _LegalText_ associated with a (sub)paragraph of an article, th
 
 ## Codebase
 
+### Cycles' detection and cycles' counting
 Currently, the main goal of _main.py_ is to set up an adjacency matrix for the directed graph and to verify whether the graph contains cycles between different _LegalText_ or not.
 The file contains several functions, but I will focus on the most important ones to reach this goal.
 
@@ -62,9 +64,13 @@ An instance of the LegalText class (which is defined at the beginning of _main.p
 The next step was setting up the adjacency matrix.
 
 
+### Visualization
 
-
-Inorder to display the adjacency matrix as a directed graph, I had to import NetworkX to create the nodes and edges and also import matplotlib to be able to display the graph. Inorder to work with these packages and be able to view the graph you can follow the download instructions from NetworkX for your machine here: https://networkx.org/documentation/stable/install.html . You can also follow the download instructions for matplotlib for your machine here: https://matplotlib.org/stable/install/index.html . Once downloaded and running the code, the directed graph will appear in a new window. The home button on the new window is to reset the view, the arrows are to toggle different views you have activated before, the axis button to to move around the graph, the magnifying glass is a zoom in button in which you create a square around the are you want to zoom in on, and finally the save figure to save the figure to your local machine.
+In order to display the adjacency matrix as a directed graph, I had to import `NetworkX` to create the nodes and edges and also import `matplotlib` to be able to display the graph.
+In order to work with these packages and be able to view the graph you can follow the download instructions from NetworkX for your machine here: https://networkx.org/documentation/stable/install.html.
+You can also follow the download instructions for matplotlib for your machine here: https://matplotlib.org/stable/install/index.html.
+Once downloaded and running the code, the directed graph will appear in a new window.
+The home button on the new window is to reset the view, the arrows are to toggle different views you have activated before, the axis button to move around the graph, the magnifying glass is a zoom-in button in which you create a square around the area you want to zoom-in on, and finally the save figure to save the figure to your local machine.
 
 ## Credits
 
