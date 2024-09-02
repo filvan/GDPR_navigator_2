@@ -49,7 +49,7 @@ Currently, the main goal of _main.py_ is to set up an adjacency matrix for the d
 The file contains several functions, but I will focus on the most important ones to reach this goal.
 
 At first, the **main** function creates some Python dictionaries and import the content of GDPR_map.xlsx in a `pandas` dataframe.
-This datastructure is very similar to the table in the Excel file and it can be easily managed by using the functions provided by the `pandas` library.
+This datastructure is very similar to the table in the Excel file, and it can be easily managed by using the functions provided by the `pandas` library.
 To keep the links in the dataframe as in the Excel file, I wrote a **setup_links** subroutine that works on them by using the `openpyxl` library.
 Since I didn't want NaN values in the table, I removed them by writing `df.fillna('', inplace=True)`.
 
@@ -61,8 +61,20 @@ An instance of the LegalText class (which is defined at the beginning of _main.p
 - `article2index` is useful to do a "reverse lookup", because it contains an article name as key and the corresponding index as value.
 - `article2references` contains an article name as key and the corresponding references list as value.
 
-The next step was setting up the adjacency matrix.
-
+The next step was setting up the adjacency matrix using **setup_graph_matrix**.
+The adjacency matrix is a square matrix used to represent the directed graph. Therefore, it has 793 rows and 793 columns.
+Initially, the matrix is initialized with zeros, then the function fills it with ones where there is a reference from a _LegalText_ to another one.
+It is important to notice that the matrix can be initialized by choosing between four different strategies (or options):
+- _strict_ definition of articles and lists of articles (option 0): each _LegalText_ is interpreted as a single node in the graph. Therefore, the matrix is filled with ones only when there is a direct reference from a _LegalText_ to another one.
+  For example, Article 12(1) refers to Article 34. Article 12(1) is associated to index 62 and Article 34 "as a whole" is associated to index 273.
+  Therefore, the matrix will have a 1 in the cell (62, 273). Even if Article 34 has paragraphs and subparagraphs, they're not explicitly referred by Article 12(1), so the matrix will have zeros in the cells (62, 274), (62, 275), etc.
+- _strict_ definition of articles and _broad_ definition of lists of articles (option 1): when a _LegalText_ refers to a list of _LegalText_, that interval is interpreted in a broad sense. In other words, the interval includes not only the single articles but also the paragraphs and subparagraphs they contain.
+  For example, Article 12(1) refers also to the interval from Article 13 to Article 22. Article 12(2) is associated to index 63, Article 13 is associated to index 276 and Article 22 is associated to index 283.
+  Therefore, the matrix will have a 1 in the cells
+- _only_direct_and_indirect_references_ (option 2): the matrix is filled with ones only where there is a direct reference from a _LegalText_ to another one and where there is an indirect reference.
+  (e.g. )
+- _only_indirect_references_ (option 3): the matrix is filled with ones only where there is an indirect reference from a _LegalText_ to another one.
+  (e.g. )
 
 ### Visualization
 
