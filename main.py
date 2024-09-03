@@ -60,7 +60,7 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                             increment = 0
                             interval_start = article2index[match2[0]]
                             interval_end = article2index[match2[1]]
-                            k = interval_start
+                            k = interval_end
                             name = index2article_with_references[k].name
                             while match2[1] in name:
                                 increment += 1
@@ -181,6 +181,7 @@ def DFS_kosaraju(graph_matrix, v, visited, visited2, visited3, stack, stack2, in
     visited3.append(current_node_name)
     for adjacent_node in range(len(graph_matrix)):
         if graph_matrix[v][adjacent_node] == 1 and not visited[adjacent_node]:
+            adjacent_node_name = index2article_with_references[adjacent_node]
             DFS_kosaraju(graph_matrix, adjacent_node, visited, visited2, visited3, stack, stack2,
                          index2article_with_references)
     stack.append(v)
