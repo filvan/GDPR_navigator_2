@@ -94,3 +94,6 @@ disk/*
 repository/*
 sqliteDb.db
 testdb.db
+
+*.docx
+*.graphml
