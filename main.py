@@ -174,6 +174,64 @@ def detect_cycle(graph_matrix, index2article_with_references):
                 index2article_with_references)
 
 
+def DFS_kosaraju(graph_matrix, v, visited, visited2, visited3, stack, stack2, index2article_with_references):
+    current_node_name = index2article_with_references[v]
+    visited[v] = True
+    visited2[v] = current_node_name
+    visited3.append(current_node_name)
+    for adjacent_node in range(len(graph_matrix)):
+        if graph_matrix[v][adjacent_node] == 1 and not visited[adjacent_node]:
+            DFS_kosaraju(graph_matrix, adjacent_node, visited, visited2, visited3, stack, stack2,
+                         index2article_with_references)
+    stack.append(v)
+    stack2.append(current_node_name)
+
+
+def DFS_util(transposed_graph_matrix, v, visited, visited2, visited3, component, component2,
+             index2article_with_references):
+    current_node_name = index2article_with_references[v]
+    visited[v] = True
+    visited2[v] = current_node_name
+    visited3.append(current_node_name)
+    component.append(v)
+    component2.append(current_node_name)
+    for adjacent_node in range(len(transposed_graph_matrix)):
+        adjacent_node_name = index2article_with_references[adjacent_node]
+        if transposed_graph_matrix[v][adjacent_node] == 1 and not visited[adjacent_node]:
+            DFS_util(transposed_graph_matrix, adjacent_node, visited, visited2, visited3, component, component2,
+                     index2article_with_references)
+
+
+def kosaraju_scc(graph_matrix, index2article_with_references):
+    stack = []
+    stack2 = []
+    visited = [False] * len(graph_matrix)
+    visited2 = [''] * len(graph_matrix)
+    visited3 = []
+
+    for i in range(len(graph_matrix)):
+        if not visited[i]:
+            DFS_kosaraju(graph_matrix, i, visited, visited2, visited3, stack, stack2, index2article_with_references)
+
+    transposed_graph_matrix = graph_matrix.transpose()
+
+    visited = [False] * len(graph_matrix)
+    visited2 = [''] * len(graph_matrix)
+    visited3 = []
+    scc_list = []
+
+    while stack:
+        i = stack.pop()
+        if not visited[i]:
+            component = []
+            component2 = []
+            DFS_util(transposed_graph_matrix, i, visited, visited2, visited3, component, component2,
+                     index2article_with_references)
+            scc_list.append(component)
+
+    return scc_list
+
+
 def main():
     index2references: dict[int, list] = {}
     index2article_with_references: dict[int, LegalText] = {}
@@ -193,16 +251,25 @@ def main():
     # print(article2references)
 
     # choose an option between 0, 1, 2, 3 to set up the graph adjacency matrix
-    graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=3)
+    graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=1)
 
     # with np.printoptions(threshold=np.inf):
     # print(graph_matrix)
 
     detect_cycle(graph_matrix, index2article_with_references)
     if num_cycles > 0:
-        print(f"{num_cycles} cycle(s) detected.")
+        print(f"{num_cycles} cycle(s) detected.\n")
     else:
-        print("No cycle detected.")
+        print("No cycle detected.\n")
+
+    scc_list = kosaraju_scc(graph_matrix, index2article_with_references)
+    for i in range(len(scc_list)):
+        if len(scc_list[i]) > 1:
+            print(f"SCC {i + 1}: {[index2article_with_references[node].name for node in scc_list[i]]}")
+            print("Number of nodes in the strongly connected component:", len(scc_list[i]))
+    print("Number of strongly connected components including more than one node:",
+          len([scc for scc in scc_list if len(scc) > 1]))
+    print("Total number of strongly connected components:", len(scc_list))
 
     # Author: Esteban Garcia Taquez
 
