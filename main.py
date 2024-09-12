@@ -116,8 +116,8 @@ def setup_dictionaries(df, index2references, index2article_with_references, arti
 num_cycles = 0
 
 
-def DFS(current_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack, recursion_stack2,
-        recursion_stack3: list, graph_matrix, index2article_with_references):
+def DFS_cycles(current_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack, recursion_stack2,
+               recursion_stack3: list, graph_matrix, index2article_with_references, print_all_chains=False):
     global num_cycles
     current_node_name = index2article_with_references[current_node]
     visited_nodes[current_node] = True
@@ -134,9 +134,10 @@ def DFS(current_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_s
             # print("Art.", current_node_name, "-> Art.", adjacent_node_name)
             if not visited_nodes[adjacent_node]:
                 # print("Art.", current_node_name, "-> Art.", adjacent_node_name)
-                DFS(adjacent_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack, recursion_stack2,
-                    recursion_stack3, graph_matrix,
-                    index2article_with_references)
+                DFS_cycles(adjacent_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack,
+                           recursion_stack2,
+                           recursion_stack3, graph_matrix,
+                           index2article_with_references, print_all_chains)
             elif recursion_stack[adjacent_node]:
                 if graph_matrix[adjacent_node][current_node] == 1:
                     print("Cycle detected:", current_node_name, "<->", adjacent_node_name)
@@ -147,6 +148,10 @@ def DFS(current_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_s
                     print(recursion_stack2[adjacent_node])
                 num_cycles += 1
 
+    if print_all_chains and len(recursion_stack3) > 1:
+        for node in range(len(recursion_stack3) - 1):
+            print(recursion_stack3[node], "-> ", end="")
+        print(recursion_stack3[-1])
     recursion_stack[current_node] = False
     recursion_stack2[current_node] = ''
     recursion_stack3.remove(current_node_name)
@@ -169,9 +174,9 @@ def detect_cycle(graph_matrix, index2article_with_references):
         # current_node_name = index2article_with_references[current_node]
         if not visited_nodes[current_node]:
             # print("Running DFS on Art.", current_node_name)
-            DFS(current_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack, recursion_stack2,
-                recursion_stack3, graph_matrix,
-                index2article_with_references)
+            DFS_cycles(current_node, visited_nodes, visited_nodes2, visited_nodes3, recursion_stack, recursion_stack2,
+                       recursion_stack3, graph_matrix,
+                       index2article_with_references, print_all_chains=False)
 
 
 def DFS_kosaraju(graph_matrix, v, visited, visited2, visited3, stack, stack2, index2article_with_references):
@@ -233,7 +238,44 @@ def kosaraju_scc(graph_matrix, index2article_with_references):
     return scc_list
 
 
+num_chains = 0
+
+
+def DFS_chains_of_references(current_node, graph_matrix, index2article_with_references, recursion_stack):
+    global num_chains
+    current_node_name = index2article_with_references[current_node]
+    # print("Visiting Art.", current_node_name)
+    recursion_stack.append(current_node_name)
+
+    for adjacent_node in range(len(index2article_with_references)):
+        adjacent_node_name = index2article_with_references[adjacent_node]
+        if graph_matrix[current_node][adjacent_node] == 1 and adjacent_node_name not in recursion_stack:
+            # print("Art.", current_node_name, "-> Art.", adjacent_node_name)
+            DFS_chains_of_references(adjacent_node, graph_matrix, index2article_with_references, recursion_stack)
+
+    if len(recursion_stack) > 1:
+        num_chains += 1
+        for node in range(len(recursion_stack) - 1):
+            print(recursion_stack[node], "-> ", end="")
+        print(recursion_stack[-1])
+    recursion_stack.remove(current_node_name)
+    # print("Visit on Art.", current_node_name, "completed.")
+
+
+def print_chains_of_references(graph_matrix, index2article_with_references):
+    global num_chains
+    num_chains = 0
+    num_nodes = len(index2article_with_references)
+    recursion_stack = []
+
+    for current_node in range(num_nodes):
+        if index2article_with_references[current_node].translated:
+            # current_node_name = index2article_with_references[current_node]
+            DFS_chains_of_references(current_node, graph_matrix, index2article_with_references, recursion_stack)
+
+
 def main():
+    option = 2
     index2references: dict[int, list] = {}
     index2article_with_references: dict[int, LegalText] = {}
     article2index: dict[str, int] = {}
@@ -252,7 +294,7 @@ def main():
     # print(article2references)
 
     # choose an option between 0, 1, 2, 3 to set up the graph adjacency matrix
-    graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option=1)
+    graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option)
 
     # with np.printoptions(threshold=np.inf):
     # print(graph_matrix)
@@ -271,6 +313,11 @@ def main():
     print("Number of strongly connected components including more than one node:",
           len([scc for scc in scc_list if len(scc) > 1]))
     print("Total number of strongly connected components:", len(scc_list))
+
+    if option < 2:
+        print("\nPrinting the chains of references for the translated articles:")
+        number_of_chains_found = print_chains_of_references(graph_matrix, index2article_with_references)
+        print("Number of chains of references:", num_chains)
 
     # Author: Esteban Garcia Taquez
 
