@@ -293,11 +293,11 @@ def print_SCC(nodes_list, graph_matrix, index2article):
     A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
     # print(A)
     A.layout(prog="sfdp", args="-Goverlap=scalexy")
-    A.draw("SCC_with_59_nodes.svg")
+    # A.draw("SCC_with_59_nodes_option2.png")
 
 
 def main():
-    option = 2
+    option = 3
     index2article: dict[int, str] = {}
     index2references: dict[int, list] = {}
     index2article_with_references: dict[int, LegalText] = {}
@@ -359,9 +359,10 @@ def main():
     matrix = np.matrix(arrayMatrix)
 
     # loop through matrix and write into a txt file
-    with open('matrix.txt', 'wb') as f:
-        for line in matrix:
-            np.savetxt(f, line, fmt='%.0f')
+
+    # with open('matrix.txt', 'wb') as f:
+    #     for line in matrix:
+    #         np.savetxt(f, line, fmt='%.0f')
 
     # create the graph from the matrix as an array
     G = nx.DiGraph(arrayMatrix)
@@ -386,7 +387,7 @@ def main():
     A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
     # print(A)
     A.layout(prog="sfdp", args="-Goverlap=scalexy")
-    A.draw("graph.svg")
+    A.draw("graph.png")
 
 
 if __name__ == '__main__':
