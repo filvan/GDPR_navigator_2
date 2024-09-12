@@ -4,6 +4,7 @@ import numpy as np
 import re
 import networkx as nx
 import matplotlib.pyplot as plt
+import pygraphviz as pgv
 
 
 class LegalText:
@@ -94,7 +95,8 @@ def setup_links() -> list:
     return links
 
 
-def setup_dictionaries(df, index2references, index2article_with_references, article2index, article2references):
+def setup_dictionaries(df, index2article, index2references, index2article_with_references, article2index,
+                       article2references):
     for i in range(len(df)):
         row = df.loc[i]
         article, paragraph, point, translated, references, link = row
@@ -108,6 +110,7 @@ def setup_dictionaries(df, index2references, index2article_with_references, arti
             name = article + '(' + paragraph + ')'
         else:
             name = article
+        index2article[i] = name
         index2article_with_references[i] = LegalText(name, translated, index2references[i])
         article2index[name] = i
         article2references[name] = index2references[i]
@@ -274,8 +277,28 @@ def print_chains_of_references(graph_matrix, index2article_with_references):
             DFS_chains_of_references(current_node, graph_matrix, index2article_with_references, recursion_stack)
 
 
+def print_SCC(nodes_list, graph_matrix, index2article):
+    G = nx.DiGraph()
+    for i in range(len(nodes_list)):
+        row = graph_matrix[nodes_list[i]]
+        for j in range(len(row)):
+            if j in nodes_list and row[j] == 1:
+                G.add_edge(nodes_list[i], j)
+    G = nx.relabel_nodes(G, index2article)
+    nx.draw(G, with_labels=True, node_size=1, font_size=1)
+    A = nx.nx_agraph.to_agraph(G)
+    A.node_attr.update(shape="box", color="black", fontname="Helvetica",
+                       fontsize=12, fontcolor="black", fonttype="bold", nodesep=2.0,
+                       width=0.65, height=0.3, margin=0)
+    A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
+    # print(A)
+    A.layout(prog="sfdp", args="-Goverlap=scalexy")
+    A.draw("SCC_with_59_nodes.svg")
+
+
 def main():
     option = 2
+    index2article: dict[int, str] = {}
     index2references: dict[int, list] = {}
     index2article_with_references: dict[int, LegalText] = {}
     article2index: dict[str, int] = {}
@@ -287,7 +310,9 @@ def main():
     df['Link'] = setup_links()
     df.fillna('', inplace=True)
     # print(df)
-    setup_dictionaries(df, index2references, index2article_with_references, article2index, article2references)
+    setup_dictionaries(df, index2article, index2references, index2article_with_references, article2index,
+                       article2references)
+    # print(index2article)
     # print(index2references)
     # print(index2article_with_references)# maps the number node to correct name
     # print(article2index)
@@ -308,17 +333,19 @@ def main():
     scc_list = kosaraju_scc(graph_matrix, index2article_with_references)
     for i in range(len(scc_list)):
         if len(scc_list[i]) > 1:
-            print(f"SCC {i + 1}: {[index2article_with_references[node].name for node in scc_list[i]]}")
+            print(f"SCC: {[index2article_with_references[node].name for node in scc_list[i]]}")
             print("Number of nodes in the strongly connected component:", len(scc_list[i]))
-    print("Number of strongly connected components including more than one node:",
-          len([scc for scc in scc_list if len(scc) > 1]))
-    print("Total number of strongly connected components:", len(scc_list))
+            if i == 217:
+                print_SCC(scc_list[i], graph_matrix, index2article_with_references)
+    print("Number of non-singleton strongly connected components:", len([scc for scc in scc_list if len(scc) > 1]))
+    # print("Total number of strongly connected components:", len(scc_list))
 
+    """
     if option < 2:
         print("\nPrinting the chains of references for the translated articles:")
-        number_of_chains_found = print_chains_of_references(graph_matrix, index2article_with_references)
+        print_chains_of_references(graph_matrix, index2article_with_references)
         print("Number of chains of references:", num_chains)
-
+    """
     # Author: Esteban Garcia Taquez
 
     # turn the graph adjacency matrix into 2d array
@@ -340,11 +367,26 @@ def main():
     G = nx.DiGraph(arrayMatrix)
 
     # modify the names of the nodes
-    G = nx.relabel_nodes(G, index2article_with_references)
+    G = nx.relabel_nodes(G, index2article)
+
+    # remove nodes with degree lower than 1
+    degree = G.degree()
+    remove = []
+    for i in degree:
+        if i[1] < 1:
+            remove.append(i[0])
+    G.remove_nodes_from(remove)
 
     # draw and print the graph
-    nx.draw(G, pos=nx.circular_layout(G), with_labels=True, node_size=1200)
-    # plt.show()
+    nx.draw(G, with_labels=True, node_size=1, font_size=1)
+    A = nx.nx_agraph.to_agraph(G)
+    A.node_attr.update(shape="box", color="black", fontname="Helvetica",
+                       fontsize=12, fontcolor="black", fonttype="bold", nodesep=2.0,
+                       width=0.65, height=0.3, margin=0)
+    A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
+    # print(A)
+    A.layout(prog="sfdp", args="-Goverlap=scalexy")
+    A.draw("graph.svg")
 
 
 if __name__ == '__main__':
