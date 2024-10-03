@@ -26,6 +26,7 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
     if not 0 <= option <= 3:
         print("Invalid value of the option. Please choose an option value between 0, 1, 2 and 3")
         exit(1)
+    counter = 0
     graph_matrix = np.zeros((len(index2article_with_references), len(index2article_with_references)), dtype=int)
     for i in range(len(index2article_with_references)):
         # graph_matrix[0][i] = i
@@ -44,6 +45,7 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                         name = index2article_with_references[k].name
                         while match1 in name:
                             graph_matrix[i][k] = 1
+                            counter += 1
                             k += 1
                             if k == len(index2article_with_references):
                                 break
@@ -51,6 +53,7 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                     else:
                         reference_index = article2index[match1]
                         graph_matrix[i][reference_index] = 1
+                        counter += 1
                 else:
                     match2 = re.search(pattern=regex2, string=reference)
                     if match2:
@@ -79,7 +82,9 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                             else:
                                 reference_index = article2index[str(j)]
                             graph_matrix[i][reference_index] = 1
-    print("Graph matrix has been set up.\n")
+                            counter += 1
+    print("Graph matrix has been set up.")
+    print(f"Average number of references starting from each article: {counter/len(index2article_with_references)}\n")
     return graph_matrix
 
 
@@ -95,8 +100,8 @@ def setup_links() -> list:
     return links
 
 
-def setup_dictionaries(df, index2article, index2references, index2article_with_references, article2index,
-                       article2references):
+def setup_dictionaries(df, index2article, index2article_with_references, article2index):
+    index2references: dict[int, list] = {}
     for i in range(len(df)):
         row = df.loc[i]
         article, paragraph, point, translated, references, link = row
@@ -113,7 +118,6 @@ def setup_dictionaries(df, index2article, index2references, index2article_with_r
         index2article[i] = name
         index2article_with_references[i] = LegalText(name, translated, index2references[i])
         article2index[name] = i
-        article2references[name] = index2references[i]
 
 
 num_cycles = 0
@@ -299,10 +303,8 @@ def print_SCC(nodes_list, graph_matrix, index2article):
 def main():
     option = 3
     index2article: dict[int, str] = {}
-    index2references: dict[int, list] = {}
     index2article_with_references: dict[int, LegalText] = {}
     article2index: dict[str, int] = {}
-    article2references: dict[str, list] = {}
     df = pd.read_excel('GDPR_map.xlsx',
                        names=['Article', 'Paragraph', 'Point', 'Translated', 'References', 'Link'],
                        dtype={'Article': str, 'Paragraph': str, 'Point': str, 'Translated': bool, 'References': str,
@@ -310,13 +312,10 @@ def main():
     df['Link'] = setup_links()
     df.fillna('', inplace=True)
     # print(df)
-    setup_dictionaries(df, index2article, index2references, index2article_with_references, article2index,
-                       article2references)
+    setup_dictionaries(df, index2article, index2article_with_references, article2index)
     # print(index2article)
-    # print(index2references)
     # print(index2article_with_references)# maps the number node to correct name
     # print(article2index)
-    # print(article2references)
 
     # choose an option between 0, 1, 2, 3 to set up the graph adjacency matrix
     graph_matrix = setup_graph_matrix(index2article_with_references, article2index, option)
@@ -339,7 +338,6 @@ def main():
                 print_SCC(scc_list[i], graph_matrix, index2article_with_references)
     print("Number of non-singleton strongly connected components:", len([scc for scc in scc_list if len(scc) > 1]))
     # print("Total number of strongly connected components:", len(scc_list))
-
     """
     if option < 2:
         print("\nPrinting the chains of references for the translated articles:")
@@ -351,18 +349,8 @@ def main():
     # turn the graph adjacency matrix into 2d array
     arrayMatrix = np.array(graph_matrix)
 
-    # this will loop through the matrix and print it
-    # for x in graph_matrix:
-    #     print(x)
-
     # turn the 2d array into a matrix
     matrix = np.matrix(arrayMatrix)
-
-    # loop through matrix and write into a txt file
-
-    # with open('matrix.txt', 'wb') as f:
-    #     for line in matrix:
-    #         np.savetxt(f, line, fmt='%.0f')
 
     # create the graph from the matrix as an array
     G = nx.DiGraph(arrayMatrix)
@@ -387,7 +375,7 @@ def main():
     A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
     # print(A)
     A.layout(prog="sfdp", args="-Goverlap=scalexy")
-    A.draw("graph.png")
+    A.draw("graph_option3.png")
 
 
 if __name__ == '__main__':
