@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 import re
 import networkx as nx
-import matplotlib.pyplot as plt
-import pygraphviz as pgv
 
 
 class LegalText:
@@ -84,7 +82,7 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                             graph_matrix[i][reference_index] = 1
                             counter += 1
     print("Graph matrix has been set up.")
-    print(f"Average number of references starting from each article: {counter/len(index2article_with_references)}\n")
+    print(f"Average number of references starting from each article: {counter}/{len(index2article_with_references)} = {counter/len(index2article_with_references)}\n")
     return graph_matrix
 
 
@@ -296,12 +294,12 @@ def print_SCC(nodes_list, graph_matrix, index2article):
                        width=0.65, height=0.3, margin=0)
     A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
     # print(A)
-    A.layout(prog="sfdp", args="-Goverlap=scalexy")
+    A.layout(prog="sfdp", args="-Goverlap=prism")
     # A.draw("SCC_with_59_nodes_option2.png")
 
 
 def main():
-    option = 3
+    option = 0
     index2article: dict[int, str] = {}
     index2article_with_references: dict[int, LegalText] = {}
     article2index: dict[str, int] = {}
@@ -337,7 +335,7 @@ def main():
             if i == 217:
                 print_SCC(scc_list[i], graph_matrix, index2article_with_references)
     print("Number of non-singleton strongly connected components:", len([scc for scc in scc_list if len(scc) > 1]))
-    # print("Total number of strongly connected components:", len(scc_list))
+    print("Total number of strongly connected components:", len(scc_list))
     """
     if option < 2:
         print("\nPrinting the chains of references for the translated articles:")
@@ -349,9 +347,6 @@ def main():
     # turn the graph adjacency matrix into 2d array
     arrayMatrix = np.array(graph_matrix)
 
-    # turn the 2d array into a matrix
-    matrix = np.matrix(arrayMatrix)
-
     # create the graph from the matrix as an array
     G = nx.DiGraph(arrayMatrix)
 
@@ -359,12 +354,14 @@ def main():
     G = nx.relabel_nodes(G, index2article)
 
     # remove nodes with degree lower than 1
+    # print(G)
     degree = G.degree()
     remove = []
     for i in degree:
         if i[1] < 1:
             remove.append(i[0])
     G.remove_nodes_from(remove)
+    # print(G)
 
     # draw and print the graph
     nx.draw(G, with_labels=True, node_size=1, font_size=1)
@@ -374,8 +371,8 @@ def main():
                        width=0.65, height=0.3, margin=0)
     A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
     # print(A)
-    A.layout(prog="sfdp", args="-Goverlap=scalexy")
-    A.draw("graph_option3.png")
+    A.layout(prog="sfdp", args="-Goverlap=prism")
+    A.draw("graph_option0_3.jpg")
 
 
 if __name__ == '__main__':
