@@ -82,7 +82,8 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                             graph_matrix[i][reference_index] = 1
                             counter += 1
     print("Graph matrix has been set up.")
-    print(f"Average number of references starting from each article: {counter}/{len(index2article_with_references)} = {counter/len(index2article_with_references)}\n")
+    print(
+        f"Average number of references starting from each article: {counter}/{len(index2article_with_references)} = {counter / len(index2article_with_references)}\n")
     return graph_matrix
 
 
@@ -298,6 +299,37 @@ def print_SCC(nodes_list, graph_matrix, index2article):
     # A.draw("SCC_with_59_nodes_option2.png")
 
 
+def visualize_graph(graph_matrix, index2article):
+    # Author: Esteban Garcia Taquez
+
+    # create the graph from the matrix as an array
+    G = nx.DiGraph(graph_matrix)
+
+    # modify the names of the nodes
+    G = nx.relabel_nodes(G, index2article)
+
+    # remove nodes with degree lower than 1
+    # print(G)
+    degree = G.degree()
+    remove = []
+    for i in degree:
+        if i[1] < 1:
+            remove.append(i[0])
+    G.remove_nodes_from(remove)
+    # print(G)
+
+    # draw and print the graph
+    nx.draw(G, with_labels=True, node_size=1, font_size=1)
+    A = nx.nx_agraph.to_agraph(G)
+    A.node_attr.update(shape="box", color="black", fontname="Helvetica",
+                       fontsize=12, fontcolor="black", fonttype="bold", nodesep=2.0,
+                       width=0.65, height=0.3, margin=0)
+    A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
+    # print(A)
+    A.layout(prog="sfdp", args="-Goverlap=prism")
+    A.draw("graph_option0_4.jpg")
+
+
 def main():
     option = 0
     index2article: dict[int, str] = {}
@@ -342,37 +374,8 @@ def main():
         print_chains_of_references(graph_matrix, index2article_with_references)
         print("Number of chains of references:", num_chains)
     """
-    # Author: Esteban Garcia Taquez
 
-    # turn the graph adjacency matrix into 2d array
-    arrayMatrix = np.array(graph_matrix)
-
-    # create the graph from the matrix as an array
-    G = nx.DiGraph(arrayMatrix)
-
-    # modify the names of the nodes
-    G = nx.relabel_nodes(G, index2article)
-
-    # remove nodes with degree lower than 1
-    # print(G)
-    degree = G.degree()
-    remove = []
-    for i in degree:
-        if i[1] < 1:
-            remove.append(i[0])
-    G.remove_nodes_from(remove)
-    # print(G)
-
-    # draw and print the graph
-    nx.draw(G, with_labels=True, node_size=1, font_size=1)
-    A = nx.nx_agraph.to_agraph(G)
-    A.node_attr.update(shape="box", color="black", fontname="Helvetica",
-                       fontsize=12, fontcolor="black", fonttype="bold", nodesep=2.0,
-                       width=0.65, height=0.3, margin=0)
-    A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
-    # print(A)
-    A.layout(prog="sfdp", args="-Goverlap=prism")
-    A.draw("graph_option0_3.jpg")
+    # visualize_graph(graph_matrix, index2article)
 
 
 if __name__ == '__main__':
