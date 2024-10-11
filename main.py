@@ -21,7 +21,7 @@ class LegalText:
 
 
 def setup_graph_matrix(index2article_with_references: dict, article2index: dict, option: int = 0) -> np.ndarray:
-    if not 0 <= option <= 3:
+    if not -1 <= option <= 3:
         print("Invalid value of the option. Please choose an option value between 0, 1, 2 and 3")
         exit(1)
     counter = 0
@@ -38,16 +38,25 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                 if match1:
                     match1 = match1.string
                     match1 = re.sub(r"[a-zA-Z]+\.\s", "", match1)
-                    if option == 2 or option == 3:
-                        k = article2index[match1]
+                    if option != 0 and option != 1:
+                        reference_index = article2index[match1]
+                        k = reference_index
                         name = index2article_with_references[k].name
+                        ambiguities = 0
                         while match1 in name:
-                            graph_matrix[i][k] = 1
-                            counter += 1
+                            ambiguities += 1
+                            if option == -1 and ambiguities >= 2:
+                                break
+                            elif option == 2 or option == 3:
+                                graph_matrix[i][k] = 1
+                                counter += 1
                             k += 1
                             if k == len(index2article_with_references):
                                 break
                             name = index2article_with_references[k].name
+                        if option == -1 and ambiguities < 2:
+                            graph_matrix[i][reference_index] = 1
+                            counter += 1
                     else:
                         reference_index = article2index[match1]
                         graph_matrix[i][reference_index] = 1
@@ -79,8 +88,24 @@ def setup_graph_matrix(index2article_with_references: dict, article2index: dict,
                                 reference_index = j
                             else:
                                 reference_index = article2index[str(j)]
-                            graph_matrix[i][reference_index] = 1
-                            counter += 1
+                            if option != -1:
+                                graph_matrix[i][reference_index] = 1
+                                counter += 1
+                            else:
+                                k = reference_index
+                                name = index2article_with_references[k].name
+                                ambiguities = 0
+                                while str(j) in name:
+                                    ambiguities += 1
+                                    if ambiguities >= 2:
+                                        break
+                                    k += 1
+                                    if k == len(index2article_with_references):
+                                        break
+                                    name = index2article_with_references[k].name
+                                if ambiguities < 2:
+                                    graph_matrix[i][reference_index] = 1
+                                    counter += 1
     print("Graph matrix has been set up.")
     print(
         f"Average number of references starting from each article: {counter}/{len(index2article_with_references)} = {counter / len(index2article_with_references)}\n")
@@ -304,19 +329,20 @@ def visualize_graph(graph_matrix, index2article):
 
     # create the graph from the matrix as an array
     G = nx.DiGraph(graph_matrix)
+    print(G)
 
     # modify the names of the nodes
     G = nx.relabel_nodes(G, index2article)
 
     # remove nodes with degree lower than 1
-    # print(G)
+
     degree = G.degree()
     remove = []
     for i in degree:
         if i[1] < 1:
             remove.append(i[0])
     G.remove_nodes_from(remove)
-    # print(G)
+    print(G)
 
     # draw and print the graph
     nx.draw(G, with_labels=True, node_size=1, font_size=1)
@@ -326,12 +352,12 @@ def visualize_graph(graph_matrix, index2article):
                        width=0.65, height=0.3, margin=0)
     A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
     # print(A)
-    A.layout(prog="sfdp", args="-Goverlap=prism")
-    A.draw("graph_option0_4.jpg")
+    A.layout(prog="sfdp", args="-Goverlap=scalexy")
+    A.draw("graph_option-1_2.jpg")
 
 
 def main():
-    option = 0
+    option = -1
     index2article: dict[int, str] = {}
     index2article_with_references: dict[int, LegalText] = {}
     article2index: dict[str, int] = {}
@@ -375,7 +401,7 @@ def main():
         print("Number of chains of references:", num_chains)
     """
 
-    # visualize_graph(graph_matrix, index2article)
+    visualize_graph(graph_matrix, index2article)
 
 
 if __name__ == '__main__':
