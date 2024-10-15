@@ -351,9 +351,9 @@ def visualize_graph(graph_matrix, index2article):
                        fontsize=12, fontcolor="black", fonttype="bold", nodesep=2.0,
                        width=0.65, height=0.3, margin=0)
     A.edge_attr.update(color="blue", style="solid", penwidth=0.5, arrowsize=0.6, arrowhead="vee")
-    # print(A)
+    print(A)
     A.layout(prog="sfdp", args="-Goverlap=scalexy")
-    A.draw("graph_option-1_2.jpg")
+    # A.draw("graph_option-1_2.jpg")
 
 
 def main():
